@@ -4,6 +4,7 @@ from datetime import datetime
 from sys import exit
 from screeninfo import get_monitors
 
+version_text = 'v2.2.2'
 framerate_time_control = (float(datetime.now().strftime('%S')), int(datetime.now().strftime('%M')))
 check_bar_difficult_coords = ((265, 90), (210, 165), (250, 240), (250, 315))
 rabbit = None
@@ -434,7 +435,7 @@ def menu_text_blit():
     print_text(f'Рекорд: {saves_old[indexx][0]}', 565, 150, window_blit = menu_text)
     print_text(f'Рекорд: {saves_old[indexx][1]}', 565, 225, window_blit = menu_text)
     print_text(f'Рекорд: {saves_old[indexx][2]}', 565, 300, window_blit = menu_text)
-    print_text('v2.2.1', 10, 695, (255, 255, 255), font_size = 12, window_blit = menu_text)
+    print_text(version_text, 10, 695, (255, 255, 255), font_size = 12, window_blit = menu_text)
 
 def settings_text_blit():
     global settings_text
@@ -482,6 +483,12 @@ def game_blit():
     game_b.blit(fone, (0,0))
     print_text(str(s), 612, 25, font_size = 40, window_blit = game_b)
 
+def scenes_blit():
+    menu_text_blit()
+    settings_checkbar_blit()
+    settings_text_blit()
+    regulation_blit()
+
 
 gets_monitors()
 
@@ -490,10 +497,7 @@ if on_fullscreen:
 else:
     transform_img()
 
-menu_text_blit()
-settings_text_blit()
-settings_checkbar_blit()
-regulation_blit()
+scenes_blit()
 change(diff_coef)
 menu('menu')
 
@@ -513,15 +517,14 @@ while True:
             go_exit()
         elif even_t.type == VIDEORESIZE and not check_maximized and not to_fullscreen:
             resize_window(even_t.size)
+            scenes_blit()
         elif even_t.type == VIDEORESIZE and check_maximized:
             resize_window(even_t.size, True)
+            scenes_blit()
         elif even_t.type == KEYDOWN:
             if key.get_pressed()[K_f]:
                 fullscreen()
-                menu_text_blit()
-                settings_checkbar_blit()
-                settings_text_blit()
-                regulation_blit()
+                scenes_blit()
         elif even_t.type == MOUSEBUTTONDOWN:
             if mouse.get_pressed()[0]:
                 k_x, k_y = mouse.get_pos()
