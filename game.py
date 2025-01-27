@@ -1,18 +1,19 @@
 from pygame import *
-from random import randint
+from random import randint, randrange
 from datetime import datetime
 from sys import exit
 from screeninfo import get_monitors
 
-version_text = 'v2.2.2'
+version_text = 'v2.3.0_beta'
 framerate_time_control = (float(datetime.now().strftime('%S')), int(datetime.now().strftime('%M')))
 check_bar_difficult_coords = ((265, 90), (210, 165), (250, 240), (250, 315))
 rabbit = None
 resolutions_preset = ((426, 240), (640, 360), (854, 480), (1280, 720), (1920, 1080), (2560, 1440), (3840, 2160))
-framerate = fps = 60
+target_fps = fps = 60
 last_edit_difficult_s = last_edit_difficult_m = last_del_save_s = last_del_save_m = fps_counter = 0
 check_mouse_on_button = check_mouse_click_button = check_maximized = to_fullscreen = is_fullscreen = resolutions_menu_check = False
 last_coords_mouse = last_coords_click_but = [0, 0, 0, 0]
+run_status = "menu"
 
 rabbit_pick_up = 'rabbit_pick_up.wav'
 on_button = 'on_button.wav'
@@ -20,6 +21,18 @@ click_button = 'click_button.wav'
 game_over_sound = 'game_over.mp3'
 menu_music = 'menu_music.mp3'
 game_music = 'game_music.mp3'
+
+
+def load_rab_images():
+    global rabbit_images
+
+    rabbit_images = [
+        image.load('image/rabbits/rab0.png'),
+        image.load('image/rabbits/rab1.png'),
+        image.load('image/rabbits/rab2.png'),
+        image.load('image/rabbits/rab3.png'),
+        image.load('image/rabbits/rab4.png')
+    ]
 
 
 with open('save.txt') as f:
@@ -40,25 +53,25 @@ window = display.set_mode((int(1280 * scale), int(720 * scale)), RESIZABLE)
 display.set_caption('Кроличий побег')
 display.set_icon(image.load('image/rab.png'))
 clock = time.Clock()
-all_sprites = sprite.Group()
+rab_sprite = sprite.Group()
 
 
 class Button:
     global check_mouse_on_button
 
-    def __init__(self, width, height = 40, left_indent = 0, top_indent = 5):
-        self.width = int(width * scale)
-        self.height = int(height * scale)
+    def __init__(self, width, height=40, left_indent=0, top_indent=5):
+        self.width = int(width*scale)
+        self.height = int(height*scale)
         self.left_indent = left_indent
         self.top_indent = top_indent
         self.fone = Surface((self.width, self.height))
         self.fone.fill((255, 255, 255))
         self.fone.set_alpha(0)
 
-    def draw(self, x, y, text, command = None, dat = None):
+    def draw(self, x, y, text, command=None, dat=None):
         global check_mouse_on_button, last_coords_mouse, check_mouse_click_button, last_coords_click_but
 
-        x, y = int(x * scale), int(y * scale)
+        x, y = int(x*scale), int(y*scale)
         cursor = mouse.get_pos()
         click = mouse.get_pressed()
 
@@ -91,7 +104,7 @@ class Button:
         self.rect = self.fone.get_rect()
         self.rect.center = ((x, y))
         window.blit(self.fone, (x, y))
-        print_text(text, int(x / scale) + self.top_indent, int(y / scale) + self.left_indent)
+        print_text(text, int(x/scale) + self.top_indent, int(y/scale) + self.left_indent)
 
 
 class Rabbit(sprite.Sprite):
@@ -99,20 +112,58 @@ class Rabbit(sprite.Sprite):
         sprite.Sprite.__init__(self)
         global diff_coef
 
-        self.speed = int(randint(22, 30) * diff_coef * scale * 45 / fps)
-        self.image = rabbit_img
+        self.speed_x = int(randint(11, 15) * diff_coef * scale)
+        self.speed_y = 0
+        self.num_rab_img = 0
+        self.image = rabbit_images[self.num_rab_img]
         self.rect = self.image.get_rect()
         self.rect.center = (-50 * scale, (525 + randint(0, 95)) * scale)
+        self.is_in_jump = False
+        self.last_y = self.rect.y
+        self.last_x = self.rect.x
+        self.aceleration = 1.5
+        
     
     def resize(self):
-        self.image = transform.scale(image.load('image/rabbit1.png'), (int(100 * scale), int(95 * scale)))
-        rabbit.speed = rabbit.speed / last_scale * scale
-        rabbit.rect.x = rabbit.rect.x / last_scale * scale
-        rabbit.rect.y = rabbit.rect.y / last_scale * scale
+        self.image = transform.scale(rabbit_images[self.num_rab_img], (int(100 * scale), int(95 * scale)))
+        self.speed_x = self.speed_x / last_scale * scale
+        self.speed_y = self.speed_y / last_scale * scale
+        self.rect.x = self.rect.x / last_scale * scale
+        self.rect.y = self.rect.y / last_scale * scale
+        self.last_y  = self.last_y / last_scale * scale
+        self.last_x = self.last_x / last_scale * scale
+        self.aceleration = self.aceleration / last_scale * scale
+
 
     def update(self):
-        self.rect.x += self.speed
+        if randrange(0, 100, 1) > 96 and not self.is_in_jump:
+            self.num_rab_img = 2
+            self.image = rabbit_images[self.num_rab_img]
+            self.speed_y = randint(-25, -15) * scale
+            self.is_in_jump = True
 
+        elif self.is_in_jump:
+            if self.rect.y >= self.last_y:
+                self.speed_y = self.num_rab_img = 0
+                self.is_in_jump = False
+                self.image = rabbit_images[self.num_rab_img]
+            else:
+                self.speed_y += self.aceleration
+                if self.num_rab_img == 2 and (-3 * scale <= self.speed_y <= 3 * scale):
+                    self.num_rab_img = 3
+                    self.image = rabbit_images[self.num_rab_img]
+
+                elif self.num_rab_img == 3 and self.speed_y > 3 * scale:
+                    self.num_rab_img = 4
+                    self.image = rabbit_images[self.num_rab_img]
+        elif (self.rect.x - self.last_x) > 100 * scale:
+            self.num_rab_img = 1 if self.num_rab_img == 0 else 0
+            self.image = rabbit_images[self.num_rab_img]
+            self.last_x = self.rect.x
+
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+        
 
 def play_sound(sound, channel):
     mixer.Channel(channel).play(mixer.Sound(f'sounds/{sound}'))
@@ -140,7 +191,7 @@ def fullscreen():
     transform_img()
 
 
-def resize_window(size = (1280, 720), vres = False):
+def resize_window(size=(1280, 720), vres=False):
     global window, scale, last_scale
     last_scale = scale
     if size[0] / 1280 < scale and size[1] / 720 < scale:
@@ -156,11 +207,14 @@ def resize_window(size = (1280, 720), vres = False):
 
 
 def transform_img():
-    global fone, fone_menu, rabbit_img, rabbit
+    global fone, fone_menu, rabbit
+
     
     fone = transform.scale(image.load('image/foneHD.png'), (int(1280 * scale), int(720 * scale)))
     fone_menu = transform.scale(image.load('image/foneHD_blur.png'), (int(1280 * scale), int(720 * scale)))
-    rabbit_img =  transform.scale(image.load('image/rabbit1.png'), (int(100 * scale), int(95 * scale)))
+    load_rab_images()
+    for i in range(5):
+        rabbit_images[i] =  transform.scale(rabbit_images[i], (int(100 * scale), int(95 * scale)))
 
     if rabbit != None:
         rabbit.resize()
@@ -191,7 +245,7 @@ def resolutions_menu_on():
     counter_resolutions_presets()
 
 
-def resolutions_menu_off(size = None):
+def resolutions_menu_off(size=None):
     global resolutions_menu_check, is_fullscreen, on_fullscreen
     resolutions_menu_check = False
     if size != None:
@@ -225,7 +279,7 @@ def go_exit():
     exit()
 
 
-def menu(run_s = None):
+def menu(run_s=None):
     check_run(run_s)
     window.blit(menu_text, (0, 0))
     Button(217).draw(210, 150,'Небольшой побег', go_game, 25)
@@ -236,13 +290,13 @@ def menu(run_s = None):
     Button(85).draw(575, 450, 'Выход', go_exit)
 
 
-def regulation(run_s = None):
+def regulation(run_s=None):
     check_run(run_s)
     window.blit(regulation_b, (0, 0))
     Button(95).draw(10, 10, 'В меню', menu, 'menu')
 
 
-def settings(run_s = None):
+def settings(run_s=None):
     global last_change
 
     check_run(run_s, indexx)
@@ -301,12 +355,12 @@ def settings(run_s = None):
         last_change = indexx
 
 
-def check_run(run_s, last_c = None):
+def check_run(run_s, last_c=None):
     global run_status, last_change
 
     if run_s != None:
         run_status = run_s
-        menu_text_blit()
+        scenes_blit()
         if last_c != None:
             last_change = last_c
 
@@ -317,7 +371,7 @@ def del_save():
     saves_old = [[0,0,0], [0,0,0], [0,0,0], [0,0,0]]
     last_del_save_s = float(datetime.now().strftime('%S.%f'))
     last_del_save_m = float(datetime.now().strftime('%H.%M'))
-    menu_text_blit()
+    scenes_blit()
 
     with open('save.txt','w') as saves_w:
         for i in range(4):
@@ -365,21 +419,21 @@ def change(k):
 
 
 def go_game(lenn):
-    global n, s, start, all_sprites, run_status, max_n, rabbit
+    global n, s, start, rab_sprite, run_status, max_n, rabbit
 
     rabbit = Rabbit()
-    all_sprites = sprite.Group()
-    all_sprites.add(rabbit)
+    rab_sprite = sprite.Group()
+    rab_sprite.add(rabbit)
     n = s = 0
     game_blit()
     max_n = lenn
     run_status = 'game'
-    mixer.Channel(2).fadeout(500)
+    mixer.Channel(2).fadeout(50)
     start = datetime.now().strftime('%S.%f')
 
 
 def game():
-    global n, s, start, all_sprites, run_status, rabbit, old_r, k_y, k_x
+    global n, s, start, rab_sprite, run_status, rabbit, old_r, k_y, k_x
 
     window.blit(game_b, (0, 0))
     check_catch_rabb = False
@@ -407,8 +461,8 @@ def game():
         if n < max_n:
             n += 1
             rabbit = Rabbit()
-            all_sprites = sprite.Group()
-            all_sprites.add(rabbit)
+            rab_sprite = sprite.Group()
+            rab_sprite.add(rabbit)
         else:
             run_status = 'game_over'
             play_sound(game_over_sound, 1)
@@ -488,6 +542,10 @@ def scenes_blit():
     settings_checkbar_blit()
     settings_text_blit()
     regulation_blit()
+    if run_status == "game":
+        game_blit()
+    elif run_status == "game_over":
+        game_over_blit()
 
 
 gets_monitors()
@@ -499,11 +557,11 @@ else:
 
 scenes_blit()
 change(diff_coef)
-menu('menu')
+menu()
 
 
 while True:
-    clock.tick(framerate)
+    clock.tick(target_fps)
 
     for even_t in event.get():
         if WINDOWMAXIMIZED == even_t.type:
@@ -543,8 +601,8 @@ while True:
         if not mixer.Channel(2).get_busy():
             play_sound(game_music, 2)
         game()
-        all_sprites.update()
-        all_sprites.draw(window)
+        rab_sprite.update()
+        rab_sprite.draw(window)
     elif run_status == 'game_over':
         if mixer.Channel(2).get_busy():
             mixer.Channel(2).fadeout(500)
@@ -558,7 +616,8 @@ while True:
             play_sound(menu_music, 2)
         settings()
 
-    if (float(datetime.now().strftime('%S')) - framerate_time_control[0] >= 1 and int(datetime.now().strftime('%M')) == framerate_time_control[1]) or (float(datetime.now().strftime('%S')) + 60 - framerate_time_control[0] >= 1 and int(datetime.now().strftime('%M')) != framerate_time_control[1]):
+    if (float(datetime.now().strftime('%S')) - framerate_time_control[0] >= 1 and int(datetime.now().strftime('%M')) == framerate_time_control[1])\
+    or (float(datetime.now().strftime('%S')) + 60 - framerate_time_control[0] >= 1 and int(datetime.now().strftime('%M')) != framerate_time_control[1]):
         framerate_time_control = (float(datetime.now().strftime('%S')), int(datetime.now().strftime('%M')))
         fps = fps_counter + 1
         fps_counter = 0
