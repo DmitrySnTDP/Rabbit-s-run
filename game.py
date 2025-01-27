@@ -3,7 +3,7 @@ from random import randint, randrange
 from datetime import datetime
 from sys import exit
 from screeninfo import get_monitors
-import math
+
 
 version_text = 'v2.3.0_beta'
 framerate_time_control = (float(datetime.now().strftime('%S')), int(datetime.now().strftime('%M')))
@@ -150,11 +150,11 @@ class Rabbit(sprite.Sprite):
                 self.image = rabbit_images[self.num_rab_img]
             else:
                 self.speed_y += self.aceleration
-                if self.num_rab_img == 2 and (-5 * scale <= math.abs(self.last_y - self.rect.y) <= 5 * scale):
+                if self.num_rab_img == 2 and (-5 * scale <= abs(self.last_y - self.rect.y) <= 5 * scale):
                     self.num_rab_img = 3
                     self.image = rabbit_images[self.num_rab_img]
 
-                elif self.num_rab_img == 3 and math.abs(self.last_y - self.rect.y) > 5 * scale:
+                elif self.num_rab_img == 3 and abs(self.last_y - self.rect.y) > 5 * scale:
                     self.num_rab_img = 4
                     self.image = rabbit_images[self.num_rab_img]
         elif (self.rect.x - self.last_x) > 100 * scale:
