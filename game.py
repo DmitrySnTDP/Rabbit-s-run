@@ -16,12 +16,12 @@ check_mouse_on_button = check_mouse_click_button = check_maximized = to_fullscre
 last_coords_mouse = last_coords_click_but = [0, 0, 0, 0]
 run_status = "menu"
 
-rabbit_pick_up = 'rabbit_pick_up.wav'
-on_button = 'on_button.wav'
-click_button = 'click_button.wav'
-game_over_sound = 'game_over.mp3'
-menu_music = 'menu_music.mp3'
-game_music = 'game_music.mp3'
+rabbit_pick_up = 'rabbit_pick_up.ogg'
+on_button = 'on_button.ogg'
+click_button = 'click_button.ogg'
+game_over_sound = 'game_over.ogg'
+menu_music = 'menu_music.ogg'
+game_music = 'game_music.ogg'
 
 
 def load_rab_images():
