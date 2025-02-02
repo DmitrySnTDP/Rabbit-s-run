@@ -16,6 +16,7 @@ check_mouse_on_button = check_mouse_click_button = check_maximized = to_fullscre
 last_coords_mouse = last_coords_click_but = [0, 0, 0, 0]
 run_status = "menu"
 
+print(font.get_fonts())
 rabbit_pick_up = 'rabbit_pick_up.ogg'
 on_button = 'on_button.ogg'
 click_button = 'click_button.ogg'
@@ -60,7 +61,7 @@ rab_sprite = sprite.Group()
 class Button:
     global check_mouse_on_button
 
-    def __init__(self, width, height=40, left_indent=0, top_indent=5):
+    def __init__(self, width, height=40, left_indent=5, top_indent=5):
         self.width = int(width*scale)
         self.height = int(height*scale)
         self.left_indent = left_indent
@@ -69,7 +70,7 @@ class Button:
         self.fone.fill((255, 255, 255))
         self.fone.set_alpha(0)
 
-    def draw(self, x, y, text, command=None, dat=None):
+    def draw(self, x, y, text, command=None, dat=None, path_font_file = None):
         global check_mouse_on_button, last_coords_mouse, check_mouse_click_button, last_coords_click_but
 
         x, y = int(x*scale), int(y*scale)
@@ -105,7 +106,7 @@ class Button:
         self.rect = self.fone.get_rect()
         self.rect.center = ((x, y))
         window.blit(self.fone, (x, y))
-        print_text(text, int(x/scale) + self.top_indent, int(y/scale) + self.left_indent)
+        print_text(text, int(x/scale) + self.left_indent, int(y/scale) + self.top_indent, path_to_font=path_font_file)
 
 
 class Rabbit(sprite.Sprite):
@@ -170,8 +171,11 @@ def play_sound(sound, channel):
     mixer.Channel(channel).play(mixer.Sound(f'sounds/{sound}'))
     
 
-def print_text(message, x , y, font_color = (255, 255, 0), font_type = 'Arial', font_size = 30, bold = False, window_blit = window):
-    font_type = font.SysFont(font_type, int(font_size * scale), bold = bold)
+def print_text(message, x , y, font_color = (255, 255, 0), font_type = 'Arial', font_size = 30, bold = False, path_to_font = None, window_blit = window):
+    if path_to_font == None:
+        font_type = font.SysFont(font_type, int(font_size * scale), bold = bold)
+    else:
+        font_type = font.Font(path_to_font, int(font_size * scale))
     text = font_type.render(message, True, font_color)
     window_blit.blit(text, (int(x * scale), int(y * scale)))
 
@@ -283,18 +287,18 @@ def go_exit():
 def menu(run_s=None):
     check_run(run_s)
     window.blit(menu_text, (0, 0))
-    Button(217).draw(210, 150,'Небольшой побег', go_game, 25)
-    Button(185).draw(225, 225, 'Средний побег', go_game, 50)
-    Button(187).draw(225, 300, 'Большой побег', go_game, 75)
-    Button(110).draw(902, 188, 'Правила', regulation, 'regulation')
-    Button(132).draw(892, 265, 'Настройки', settings, 'settings')
-    Button(85).draw(575, 450, 'Выход', go_exit)
+    Button(233).draw(210, 150,'Небольшой побег', go_game, 25, path_font_file="MonomakhUnicode.otf")
+    Button(200).draw(225, 225, 'Средний побег', go_game, 50, path_font_file="MonomakhUnicode.otf")
+    Button(203).draw(225, 300, 'Большой побег', go_game, 75, path_font_file="MonomakhUnicode.otf")
+    Button(118).draw(902, 188, 'Правила', regulation, 'regulation', path_font_file="MonomakhUnicode.otf")
+    Button(150).draw(892, 265, 'Настройки', settings, 'settings', path_font_file="MonomakhUnicode.otf")
+    Button(93).draw(575, 450, 'Выход', go_exit, path_font_file="MonomakhUnicode.otf")
 
 
 def regulation(run_s=None):
     check_run(run_s)
     window.blit(regulation_b, (0, 0))
-    Button(95).draw(10, 10, 'В меню', menu, 'menu')
+    Button(100).draw(10, 10, 'В меню', menu, 'menu', path_font_file="MonomakhUnicode.otf")
 
 
 def settings(run_s=None):
@@ -302,22 +306,24 @@ def settings(run_s=None):
 
     check_run(run_s, indexx)
     window.blit(settings_checkbars, (0, 0))
-    Button(95).draw(10, 10, 'В меню', menu, 'menu')
-    Button(75).draw(283, 100, 'Легко', change,  0.75)
-    Button(180).draw(227, 175, 'По умолчанию', change, 1)
-    Button(100).draw(268, 250, 'Средне', change, 1.25)
-    Button(100).draw(270, 325, 'Сложно', change, 1.5)
+    Button(100).draw(10, 10, 'В меню', menu, 'menu', path_font_file="MonomakhUnicode.otf")
+    Button(82).draw(283, 100, 'Легко', change,  0.75, path_font_file="MonomakhUnicode.otf")
+    Button(192).draw(227, 175, 'По умолчанию', change, 1, path_font_file="MonomakhUnicode.otf")
+    Button(102).draw(268, 250, 'Средне', change, 1.25, path_font_file="MonomakhUnicode.otf")
+    Button(112).draw(270, 325, 'Сложно', change, 1.5, path_font_file="MonomakhUnicode.otf")
 
     if resolutions_menu_check:
         resolutions_menu_fone = Surface((180 * scale, 40 * (resolutions_count + 1) * scale))
         resolutions_menu_fone.fill((255, 255, 255))
         resolutions_menu_fone.set_alpha(100)
         window.blit(resolutions_menu_fone, (500 * scale, 250 * scale))
-        Button(180).draw(500, 250, f'▲разрешение', resolutions_menu_off)
+        Button(180).draw(510, 250, f'разрешение', resolutions_menu_off, path_font_file="MonomakhUnicode.otf")
+        print_text('▲', 490, 250, font_size=20, window_blit=settings_text)
         for c in range(resolutions_count):
             Button(180).draw(500, 290 + c * 40, f'{resolutions_preset[c][0]}x{resolutions_preset[c][1]}', resolutions_menu_off, resolutions_preset[c])
     else:
-        Button(180).draw(500, 250, f'▼разрешение', resolutions_menu_on)
+        Button(180).draw(510, 250, f'разрешение', resolutions_menu_on, path_font_file="MonomakhUnicode.otf")
+        print_text('▼', 490, 250, font_size=20, window_blit=settings_text)
 
     if volume > 0:
         Button(25).draw(800, 150, '-', edit_volume, (0, -0.1))
@@ -336,9 +342,9 @@ def settings(run_s=None):
     if music_volume < 1:
         Button(25).draw(1200, 525, '+', edit_volume, (3, 0.1))
 
-    Button(175).draw(510, 175, 'Полный экран', fullscreen)
-    Button(150).draw(520, 100, 'счётчик FPS', view_fps)
-    Button(262).draw(185, 400, 'Сбросить сохранения', del_save)
+    Button(197).draw(510, 175, 'Полный экран', fullscreen, path_font_file="MonomakhUnicode.otf")
+    Button(175).draw(520, 100, 'счётчик FPS', view_fps, path_font_file="MonomakhUnicode.otf")
+    Button(285).draw(185, 400, 'Сбросить сохранения', del_save, path_font_file="MonomakhUnicode.otf")
 
     if fps_print_check:
         print_text('•', 500, 90, font_size = 50)
@@ -349,9 +355,9 @@ def settings(run_s=None):
     now_m = float(datetime.now().strftime('%H.%M'))
 
     if last_change != indexx and (now_s - last_edit_difficult_s) < 1.0 and now_m == last_edit_difficult_m:
-        print_text('Сложность изменена!', 190, 475)
+        print_text('Сложность изменена!', 190, 475, path_to_font="MonomakhUnicode.otf")
     elif now_s - last_del_save_s < 1 and now_m == last_del_save_m:
-        print_text('Сохранения сброшены!', 179, 475)
+        print_text('Сохранения сброшены!', 179, 475, path_to_font="MonomakhUnicode.otf")
     elif last_change != indexx:
         last_change = indexx
 
@@ -479,64 +485,65 @@ def game():
 
 def game_over():
     window.blit(game_over_b, (0, 0))
-    Button(95).draw(10, 10, 'В меню', menu, 'menu')
+    Button(100).draw(10, 10, 'В меню', menu, 'menu', path_font_file="MonomakhUnicode.otf")
 
 
 def menu_text_blit():
     global menu_text
     menu_text = Surface((1280 * scale, 720 * scale))
     menu_text.blit(fone_menu, (0, 0))
-    print_text('Кроличий побег', 545, 50, window_blit = menu_text)
-    print_text(f'Рекорд: {saves_old[indexx][0]}', 565, 150, window_blit = menu_text)
-    print_text(f'Рекорд: {saves_old[indexx][1]}', 565, 225, window_blit = menu_text)
-    print_text(f'Рекорд: {saves_old[indexx][2]}', 565, 300, window_blit = menu_text)
-    print_text(version_text, 10, 695, (255, 255, 255), font_size = 12, window_blit = menu_text)
+    print_text('Кроличий побег', 506, 50, font_size=40, path_to_font="MonomakhUnicode.otf", window_blit=menu_text)
+    print_text(f'Рекорд: {saves_old[indexx][0]}', 565, 150, path_to_font="MonomakhUnicode.otf", window_blit=menu_text)
+    print_text(f'Рекорд: {saves_old[indexx][1]}', 565, 225, path_to_font="MonomakhUnicode.otf", window_blit=menu_text)
+    print_text(f'Рекорд: {saves_old[indexx][2]}', 565, 300, path_to_font="MonomakhUnicode.otf", window_blit=menu_text)
+    print_text(version_text, 10, 695, (255, 255, 255), font_size=12, window_blit=menu_text)
 
 def settings_text_blit():
     global settings_text
     settings_text = Surface((1280 * scale, 720 * scale))
     settings_text.blit(fone_menu, (0, 0))
-    print_text('общая громкость:', 900, 100, window_blit = settings_text)
-    print_text('——————————', 850, 150, font_size = 40, bold = True, window_blit = settings_text)
-    print_text('громкость интерфейса:', 900, 225, window_blit = settings_text)
-    print_text('——————————', 850, 275, font_size = 40, bold = True, window_blit = settings_text)
-    print_text('громкость игры:', 900, 350, window_blit = settings_text)
-    print_text('——————————', 850, 400, font_size = 40, bold = True, window_blit = settings_text)
-    print_text('громкость музыки:', 900, 475, window_blit = settings_text)
-    print_text('——————————', 850, 525, font_size = 40, bold = True, window_blit = settings_text)
+    print_text('общая громкость:', 900, 100, path_to_font="MonomakhUnicode.otf", window_blit=settings_text)
+    print_text('——————————', 850, 150, font_size=40, bold=True, window_blit=settings_text)
+    print_text('громкость интерфейса:', 900, 225, path_to_font="MonomakhUnicode.otf", window_blit=settings_text)
+    print_text('——————————', 850, 275, font_size=40, bold=True, window_blit=settings_text)
+    print_text('громкость игры:', 900, 350, path_to_font="MonomakhUnicode.otf", window_blit=settings_text)
+    print_text('——————————', 850, 400, font_size=40, bold=True, window_blit=settings_text)
+    print_text('громкость музыки:', 900, 475, path_to_font="MonomakhUnicode.otf", window_blit=settings_text)
+    print_text('——————————', 850, 525, font_size=40, bold=True, window_blit=settings_text)
 
 def settings_checkbar_blit():
     global settings_checkbars
     settings_checkbars = Surface((1280 * scale, 720 * scale))
     settings_checkbars.blit(settings_text, (0, 0))
-    print_text('•', check_bar_difficult_coords[indexx][0], check_bar_difficult_coords[indexx][1], font_size = 50, window_blit = settings_checkbars)
-    print_text('•', 845 + (33 * volume * 10), 148, font_size = 50, bold = True, window_blit = settings_checkbars)
-    print_text('•', 845 + (33 * interface_volume * 10), 273, font_size = 50, bold = True, window_blit = settings_checkbars)
-    print_text('•', 845 + (33 * game_volume * 10), 398, font_size = 50, bold = True, window_blit = settings_checkbars)
-    print_text('•', 845 + (33 * music_volume * 10), 523, font_size = 50, bold = True, window_blit = settings_checkbars)
+    print_text('•', check_bar_difficult_coords[indexx][0], check_bar_difficult_coords[indexx][1], font_size=50, window_blit=settings_checkbars)
+    print_text('•', 845 + (33 * volume * 10), 148, font_size=50, bold=True, window_blit=settings_checkbars)
+    print_text('•', 845 + (33 * interface_volume * 10), 273, font_size=50, bold=True, window_blit=settings_checkbars)
+    print_text('•', 845 + (33 * game_volume * 10), 398, font_size=50, bold=True, window_blit=settings_checkbars)
+    print_text('•', 845 + (33 * music_volume * 10), 523, font_size=50, bold=True, window_blit=settings_checkbars)
 
 def game_over_blit():
     global game_over_b
     game_over_b = Surface((1280 * scale, 720 * scale))
     game_over_b.blit(fone_menu, (0, 0))
-    print_text('Игра окончена', 555, 50, window_blit = game_over_b)
-    print_text(f'Рекорд: {str(old_r)}', 570, 125, window_blit = game_over_b)
-    print_text(f'Очки: {str(s)}', 580, 175, window_blit = game_over_b)
+    print_text('Игра окончена', 555, 50, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
+    print_text(f'Рекорд: {str(old_r)}', 570, 125, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
+    print_text(f'Очки: {str(s)}', 580, 175, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
 
 def regulation_blit():
     global regulation_b
     regulation_b = Surface((1280 * scale, 720 * scale))
     regulation_b.blit(fone_menu, (0, 0))
-    print_text('Суть игры в том, чтобы поймать как можно больше сбегающих с фермы кроликов.', 150, 285, window_blit = regulation_b)
-    print_text('Они бегут друг за другом. За каждого пойманного кролика вы получаете от 10 до 150 очков,', 105, 335, window_blit = regulation_b)
-    print_text(' в зависимоти от времени, за которе вы его поймали. Во время небольшого побега сбегает', 100, 385, window_blit = regulation_b)
-    print_text('25 кроликов, во время среднего 50 кроликов, а во время большого 75 кроликов.', 167, 435, window_blit = regulation_b)
+    print_text('Суть игры в том, чтобы поймать как можно больше сбегающих с фермы', 160, 285, path_to_font="MonomakhUnicode.otf", window_blit=regulation_b)
+    print_text('кроликов. Они бегут друг за другом. За каждого пойманного кролика вы получаете', 90, 335, path_to_font="MonomakhUnicode.otf", window_blit=regulation_b)
+    print_text('от 10 до 150 очков, в зависимоти от времени, за которе вы его поймали.', 165, 385, path_to_font="MonomakhUnicode.otf", window_blit=regulation_b)
+    print_text('Во время небольшого побега сбегает 25 кроликов, во время среднего 50 кроликов,', 112, 435, path_to_font="MonomakhUnicode.otf", window_blit=regulation_b)
+    print_text("а во время большого 75 кроликов.", 420, 485, path_to_font="MonomakhUnicode.otf", window_blit=regulation_b)
     
 def game_blit():
     global game_b
     game_b = Surface((1280 * scale, 720 * scale))
     game_b.blit(fone, (0,0))
-    print_text(str(s), 612, 25, font_size = 40, window_blit = game_b)
+    print_text(str(s), 612, 25, font_size = 40, window_blit=game_b)
 
 def scenes_blit():
     menu_text_blit()
