@@ -316,14 +316,14 @@ def settings(run_s=None):
         resolutions_menu_fone = Surface((180 * scale, 40 * (resolutions_count + 1) * scale))
         resolutions_menu_fone.fill((255, 255, 255))
         resolutions_menu_fone.set_alpha(100)
-        window.blit(resolutions_menu_fone, (500 * scale, 250 * scale))
-        Button(180).draw(510, 250, f'разрешение', resolutions_menu_off, path_font_file="MonomakhUnicode.otf")
-        print_text('▲', 490, 250, font_size=20, window_blit=settings_text)
+        window.blit(resolutions_menu_fone, (515 * scale, 250 * scale))
+        Button(180, left_indent=25).draw(515, 250, f'разрешение', resolutions_menu_off, path_font_file="MonomakhUnicode.otf")
+        print_text('▲', 520, 260, font_size=20, window_blit=window)
         for c in range(resolutions_count):
-            Button(180).draw(500, 290 + c * 40, f'{resolutions_preset[c][0]}x{resolutions_preset[c][1]}', resolutions_menu_off, resolutions_preset[c])
+            Button(180).draw(515, 290 + c * 40, f'{resolutions_preset[c][0]}x{resolutions_preset[c][1]}', resolutions_menu_off, resolutions_preset[c])
     else:
-        Button(180).draw(510, 250, f'разрешение', resolutions_menu_on, path_font_file="MonomakhUnicode.otf")
-        print_text('▼', 490, 250, font_size=20, window_blit=settings_text)
+        Button(180, left_indent=25).draw(515, 250, f'разрешение', resolutions_menu_on, path_font_file="MonomakhUnicode.otf")
+        print_text('▼', 520, 260, font_size=20, window_blit=window)
 
     if volume > 0:
         Button(25).draw(800, 150, '-', edit_volume, (0, -0.1))
@@ -527,7 +527,9 @@ def game_over_blit():
     game_over_b.blit(fone_menu, (0, 0))
     print_text('Игра окончена', 555, 50, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
     print_text(f'Рекорд: {str(old_r)}', 570, 125, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
-    print_text(f'Очки: {str(s)}', 580, 175, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
+    print_text(f'Очки: {str(s)}', 570, 175, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
+    if old_r < s:
+        print_text("Новый рекорд!", 550, 225, path_to_font="MonomakhUnicode.otf", window_blit=game_over_b)
 
 def regulation_blit():
     global regulation_b
@@ -543,7 +545,7 @@ def game_blit():
     global game_b
     game_b = Surface((1280 * scale, 720 * scale))
     game_b.blit(fone, (0,0))
-    print_text(str(s), 612, 25, font_size = 40, window_blit=game_b)
+    print_text(str(s), 612, 25, font_size = 40, path_to_font="MonomakhUnicode.otf", window_blit=game_b)
 
 def scenes_blit():
     menu_text_blit()
