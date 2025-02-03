@@ -5,7 +5,7 @@ from sys import exit
 from screeninfo import get_monitors
 
 
-version_text = 'v2.3.0_beta'
+version_text = 'v2.3.0'
 framerate_time_control = (float(datetime.now().strftime('%S')), int(datetime.now().strftime('%M')))
 check_bar_difficult_coords = ((265, 90), (210, 165), (250, 240), (250, 315))
 rabbit = None
